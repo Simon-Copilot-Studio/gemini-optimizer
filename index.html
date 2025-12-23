@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gemini Prompt Optimizer - Obsidian Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100;300;400;600;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --obsidian: #05070a;
+            --glass: rgba(15, 20, 28, 0.7);
+            --neon-cyan: #00f2ff;
+            --neon-purple: #bc13fe;
+            --border-gradient: linear-gradient(135deg, rgba(0, 242, 255, 0.3), rgba(188, 19, 254, 0.3));
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--obsidian);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 242, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(188, 19, 254, 0.05) 0%, transparent 40%);
+            color: #e2e8f0;
+            letter-spacing: -0.01em;
+        }
+
+        .glass-panel {
+            background: var(--glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-panel::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: inherit;
+            padding: 1px;
+            background: var(--border-gradient);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: destination-out;
+            mask-composite: exclude;
+            pointer-events: none;
+        }
+
+        .neon-text {
+            color: var(--neon-cyan);
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.5);
+        }
+
+        .neon-button {
+            background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .neon-button:hover {
+            box-shadow: 0 0 30px rgba(188, 19, 254, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .demo-button {
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            background: rgba(0, 242, 255, 0.05);
+            color: var(--neon-cyan);
+            transition: all 0.2s;
+        }
+
+        .demo-button:hover {
+            background: rgba(0, 242, 255, 0.15);
+            border-color: var(--neon-cyan);
+        }
+
+        input, textarea, select {
+            background: rgba(0, 0, 0, 0.3) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            color: #fff !important;
+            font-weight: 300;
+        }
+
+        input:focus, textarea:focus {
+            border-color: var(--neon-cyan) !important;
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 242, 255, 0.1);
+        }
+
+        .mono-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0, 242, 255, 0.2); border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen font-light">
+    <div class="max-w-[1600px] mx-auto p-4 lg:p-8">
+        <!-- Dashboard Header -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-[#00f2ff] to-[#bc13fe] flex items-center justify-center p-[2px]">
+                    <div class="w-full h-full bg-[#05070a] rounded-[10px] flex items-center justify-center font-black text-xl italic">G</div>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tighter uppercase">Prompt <span class="neon-text italic">Optimizer</span></h1>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-[0.2em]">Enterprise Terminal v3.0 // 2025.G1</p>
+                </div>
+            </div>
+            
+            <div class="flex gap-4">
+                <button onclick="loadDemo()" class="demo-button px-6 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">
+                    Shuffle Demo Examples
+                </button>
+                <div class="glass-panel px-6 py-2 rounded-full text-xs font-semibold flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    Gemini 2.5 Flash Connected
+                </div>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+            <!-- Control Module -->
+            <aside class="xl:col-span-4 space-y-6">
+                <div class="glass-panel rounded-[2rem] p-8">
+                    <div class="flex items-center justify-between mb-8">
+                        <h2 class="text-xs font-black uppercase tracking-[0.3em] text-slate-400">Input Parameters</h2>
+                        <span class="text-[10px] px-2 py-1 border border-cyan-500/30 text-cyan-400 rounded font-bold">STRICT_V3</span>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div class="group">
+                            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block tracking-widest">Architectural Role</label>
+                            <input id="personaInput" type="text" class="w-full px-4 py-3 rounded-xl text-sm transition-all" placeholder="Enter Persona Identity...">
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block tracking-widest">Global Context (Long-Context Optimized)</label>
+                            <textarea id="contextInput" class="w-full px-4 py-3 rounded-xl text-sm h-24 custom-scrollbar" placeholder="Paste architectural context or documentation..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block tracking-widest">Primary Task [CRITICAL]</label>
+                            <textarea id="taskInput" class="w-full px-4 py-3 rounded-xl text-sm font-semibold h-20" placeholder="Define final execution goal..."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block tracking-widest">Few-Shot Schema (Patterns)</label>
+                            <textarea id="examplesInput" class="w-full px-4 py-3 rounded-xl text-xs h-20 mono-font" placeholder="Input -> Output patterns..."></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block tracking-widest">Protocol</label>
+                                <select id="formatInput" class="w-full px-4 py-3 rounded-xl text-xs appearance-none">
+                                    <option value="Markdown">MARKDOWN</option>
+                                    <option value="JSON">JSON_STRUCT</option>
+                                    <option value="Table">TABLE_GRID</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-bold text-slate-500 uppercase mb-2 block tracking-widest">Engine Mode</label>
+                                <select id="logicInput" class="w-full px-4 py-3 rounded-xl text-xs appearance-none">
+                                    <option value="direct">STANDARD</option>
+                                    <option value="plan">STRATEGIC_PLAN</option>
+                                    <option value="agentic">AGENTIC_REASONING</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button onclick="optimizePrompt()" class="neon-button w-full py-5 rounded-2xl text-xs font-black uppercase tracking-[0.2em] text-white">
+                            Compile Prompt
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Visualization Module -->
+            <main class="xl:col-span-8 flex flex-col gap-6">
+                <!-- Main Code Terminal -->
+                <div class="glass-panel rounded-[2rem] p-8 flex-grow flex flex-col">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex gap-2">
+                            <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
+                            <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                            <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
+                        </div>
+                        <div class="text-[10px] font-mono text-slate-500 tracking-widest uppercase flex items-center gap-2">
+                            <span id="statusIndicator" class="inline-block w-1 h-1 bg-cyan-400 rounded-full"></span>
+                            optimizer_core_v3.0.1
+                        </div>
+                        <button onclick="copyToClipboard()" class="text-[10px] font-black uppercase tracking-widest px-4 py-2 border border-slate-700 rounded-lg hover:border-cyan-500/50 hover:text-cyan-400 transition-all">
+                            Copy to Buffer
+                        </button>
+                    </div>
+
+                    <div id="outputContainer" class="bg-black/50 p-8 rounded-2xl flex-grow mono-font text-sm leading-relaxed text-cyan-100/80 custom-scrollbar overflow-y-auto border border-white/5 whitespace-pre-wrap min-h-[500px]">
+// INITIALIZING TERMINAL...
+// SYSTEM READY. CLICK 'SHUFFLE DEMO' TO BROWSE EXAMPLES.
+                    </div>
+                </div>
+
+                <!-- Financial Style Data Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <div class="glass-panel p-4 rounded-2xl flex flex-col gap-1">
+                        <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Separation</span>
+                        <span class="text-sm font-semibold neon-text">XML_SHIELD_ON</span>
+                    </div>
+                    <div class="glass-panel p-4 rounded-2xl flex flex-col gap-1">
+                        <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Attention</span>
+                        <span class="text-sm font-semibold">TASK_END_BIAS</span>
+                    </div>
+                    <div class="glass-panel p-4 rounded-2xl flex flex-col gap-1">
+                        <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Temporal</span>
+                        <span class="text-sm font-semibold text-purple-400">EPOCH_2025</span>
+                    </div>
+                    <div class="glass-panel p-4 rounded-2xl flex flex-col gap-1">
+                        <span class="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Reliability</span>
+                        <span class="text-sm font-semibold">FEW_SHOT_SYNC</span>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="toast" class="fixed bottom-10 right-10 glass-panel border-cyan-500/50 px-8 py-4 rounded-2xl text-xs font-black uppercase tracking-widest text-cyan-400 opacity-0 transition-all translate-y-10">
+        Buffer Synchronized
+    </div>
+
+    <script>
+        const demos = [
+            {
+                persona: "資深專案協調官 (Senior Project Coordinator)",
+                context: "會議紀錄內容：\n時間：2025/12/23\n出席者：小明、老王、Sarah\n內容：Sarah 提到 Q1 預算需要增加 20%，老王建議在下週二前完成初步分析。小明負責聯繫供應商。",
+                task: "將上述會議紀錄整理成結構化的 JSON 物件，包含摘要、行動清單（Assignee 與 Deadline）以及預算異動細節。",
+                examples: "Input: 會議提到預算縮減\nOutput: {\"budget_change\": \"decrease\"}\n\nInput: Sarah負責聯絡\nOutput: {\"assignee\": \"Sarah\"}",
+                format: "JSON",
+                logic: "agentic"
+            },
+            {
+                persona: "雲端架構師與重構專家 (Cloud Solutions Architect)",
+                context: "Legacy Code Snippet:\nfunction calc(a, b) {\n  var r = a + b;\n  if (r > 100) return 100;\n  return r;\n}\n// 目前運行在舊版 Node.js 12 環境，需要遷移至 AWS Lambda (Node.js 20)",
+                task: "請分析這段代碼的潛在風險，並使用 TypeScript 與現代語法（ESNext）進行重構。請確保包含單元測試建議。",
+                examples: "Input: var x = 10;\nOutput: const x: number = 10;\n\nInput: function(a){}\nOutput: const fn = (a: type): void => {};",
+                format: "Markdown",
+                logic: "plan"
+            },
+            {
+                persona: "多語言數位行銷經理 (Multilingual Growth Lead)",
+                context: "產品名稱：NovaStream Pro\n核心價值：低延遲、4K 串流、AI 降噪背景。\n目標市場：台灣、日本、韓國的遊戲實況主。",
+                task: "請為這三個市場製作一份在地化的廣告文案矩陣。包含標題、內文以及 Call-to-Action。",
+                examples: "Market: Taiwan\nStyle: 親切且專業\n\nMarket: Japan\nStyle: 禮貌且強調細節",
+                format: "Table",
+                logic: "direct"
+            }
+        ];
+
+        let currentDemoIndex = -1;
+
+        function loadDemo() {
+            // Shuffle logic to ensure next demo is different
+            let nextIndex;
+            do {
+                nextIndex = Math.floor(Math.random() * demos.length);
+            } while (nextIndex === currentDemoIndex);
+            
+            currentDemoIndex = nextIndex;
+            const demo = demos[currentDemoIndex];
+
+            document.getElementById('personaInput').value = demo.persona;
+            document.getElementById('contextInput').value = demo.context;
+            document.getElementById('taskInput').value = demo.task;
+            document.getElementById('examplesInput').value = demo.examples;
+            document.getElementById('formatInput').value = demo.format;
+            document.getElementById('logicInput').value = demo.logic;
+            
+            optimizePrompt();
+        }
+
+        function optimizePrompt() {
+            const task = document.getElementById('taskInput').value;
+            const persona = document.getElementById('personaInput').value;
+            const context = document.getElementById('contextInput').value;
+            const examples = document.getElementById('examplesInput').value;
+            const format = document.getElementById('formatInput').value;
+            const logic = document.getElementById('logicInput').value;
+
+            if (!task) {
+                document.getElementById('outputContainer').innerHTML = `<span class="text-red-500 font-bold uppercase tracking-widest">// CRITICAL_ERROR: NULL_TASK_POINTER</span>`;
+                return;
+            }
+
+            document.getElementById('statusIndicator').classList.add('animate-ping');
+            
+            setTimeout(() => {
+                let p = `// SYSTEM_CLOCK_SYNC: 2025_ACTIVE\n// KNOWLEDGE_CUTOFF: 2025-01\n\n`;
+
+                if (persona) {
+                    p += `<role>\nYou are operating as a ${persona}. Leverage deep domain expertise and professional vernacular.\n</role>\n\n`;
+                }
+
+                p += `<guidelines>\n- PROTOCOL: ${format}\n- LANG: Traditional Chinese (繁體中文)\n`;
+                
+                if (logic === 'plan') {
+                    p += `- REASONING: Step-by-step Plan required before final execution.\n`;
+                } else if (logic === 'agentic') {
+                    p += `- MODE: AGENTIC_REASONER. Proactively analyze logical dependencies, risk assessments, and abductive hypotheses before any response.\n`;
+                }
+                p += `</guidelines>\n\n`;
+
+                if (examples) {
+                    p += `<examples>\n${examples}\n</examples>\n\n`;
+                }
+
+                if (context) {
+                    p += `<context>\n${context}\n</context>\n\n`;
+                }
+
+                p += `<task>\n${task}\n</task>\n\n`;
+                p += format === 'JSON' ? `Output JSON:` : `Output:`;
+
+                document.getElementById('outputContainer').textContent = p;
+                document.getElementById('statusIndicator').classList.remove('animate-ping');
+            }, 300);
+        }
+
+        function copyToClipboard() {
+            const content = document.getElementById('outputContainer').textContent;
+            if (content.includes("INITIALIZING")) return;
+
+            const textArea = document.createElement("textarea");
+            textArea.value = content;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+
+            const toast = document.getElementById('toast');
+            toast.style.opacity = '1';
+            toast.style.transform = 'translateY(0)';
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(40px)';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
