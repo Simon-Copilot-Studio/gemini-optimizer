@@ -1,107 +1,103 @@
 # gemini-optimizer
-gemini-optimizer
-Gemini Prompt Optimizer - Obsidian Edition 💎
 
-這是一個專為 Google Gemini (2.0/2.5) 模型設計的高級提示詞（Prompt）優化工具。採用未來感的 Obsidian Dark Mode 設計語彙與 Glassmorphism 磨砂玻璃視覺風格，旨在協助 AI 工程師與內容創作者透過結構化的方式，產出符合 Google 官方最佳實踐的優質提示詞。
+Gemini Prompt Optimizer - 提示工程指南與工具手冊 💎
 
-✨ 核心特色
+這是一個專為 Google Gemini (2.0/2.5) 模型設計的高級提示詞優化工具。本工具結合了 Google 官方的「提示設計策略」，協助您透過結構化方式產出高品質、準確且具備推理能力的提示詞。
 
-1. 未來感 UI/UX 設計
+📘 核心提示設計策略 (Prompting Strategies)
 
-黑曜石深色模式：高對比度背景，減少長時間使用的視覺疲勞。
+本工具的設計遵循以下 Gemini 官方最佳做法：
 
-霓虹元素：使用 Cyan 與 Purple 霓虹色彩標註關鍵動作與數據狀態。
+1. 清楚明確的指示 (Clear Instructions)
 
-完全響應式 (RWD)：支援從行動裝置到 4K 螢幕的流暢切換。
+如要自訂模型行為，必須提供明確的指令。指令可以是問題、任務或複雜的思維模式繪製。工具透過 <task> 標籤確保指令的核心地位。
 
-2. 結構化提示詞工程 (Prompt Engineering)
+2. 少量樣本提示 (Few-shot Prompting)
 
-工具自動將輸入內容封裝進 XML 標籤區塊中，這已被證明能顯著提升 Gemini 的指令遵循能力：
+在提示中加入範例，向模型說明正確答案的樣貌。
 
-<role>：定義模型的專業身分。
+零樣本 (Zero-shot)：未提供範例，依賴模型預訓練知識。
 
-<context>：提供背景知識與長文本脈絡。
+少量樣本 (Few-shot)：提供 2-5 個範例以控管格式、措辭或邏輯模式。
 
-<task>：明確最終執行的任務目標。
+格式一致性：確保所有範例的 XML 標記、空白字元與換行符號一致。
 
-<examples>：支援 Few-shot 學習模式，提供範例引導。
+3. 新增情境 (Adding Context)
 
-3. 多重邏輯引擎模式
+與其假設模型包含所有資訊，不如主動加入模型解決問題所需的指示。
 
-STANDARD (標準)：直接執行任務。
+使用 <context> 標籤封裝外部文件、程式碼片段或疑難排解指南。
 
-STRATEGIC_PLAN (策略規劃)：強制模型在執行前先寫出思考步驟。
+長篇脈絡結構：提供大量資料時，先提供脈絡，將具體問題放在提示最後。
 
-AGENTIC_REASONING (代理推理)：啟用主動分析邏輯，適合處理複雜、具有風險的決策任務。
+4. 限制與格式 (Constraints & Output Format)
 
-🛠 技術架構
+指定模型「該做」與「不該做」的事。
 
-前端框架：Tailwind CSS v3 (經由 CDN 載入)。
+限制：例如摘要長度、排除特定詞彙。
 
-字體系統：
+格式：要求以 JSON、Table、Markdown 或特定的項目符號呈現。
 
-UI：Inter (兼具現代感與閱讀性)。
+⚡ Gemini 3 進階實踐
 
-Code：JetBrains Mono (程式碼字體首選)。
+針對 Gemini 3 模型，本工具加入了以下進階策略：
 
-邏輯層：原生 JavaScript (ES6+)，無須依賴 Node.js 環境。
+明確規劃 (Planning)：在執行複雜任務前，要求模型先將目標拆解為子任務。
 
-樣式技術：CSS Backdrop-filter、Radial-gradients、Custom Scrollbar。
+自我評論 (Self-Critique)：要求模型在回覆前，根據原始限制檢查其生成內容。
+
+當天準確度與截止日期：
+
+提醒模型今年是 2025 年。
+
+明確定義知識截止日期為 2025 年 1 月。
+
+代理工作流程 (Agentic Workflow)：
+
+邏輯分解：分析限制與先決條件。
+
+風險評估：評估採取行動後的後果。
+
+溯因推理：在遇到問題時，識別最邏輯且可能的深層原因。
+
+🛠 工具功能說明
+
+1. 多重邏輯引擎模式
+
+STANDARD (標準)：直接執行任務，適用於簡單查詢。
+
+STRATEGIC_PLAN (策略規劃)：強制執行前先進行步驟規劃。
+
+AGENTIC_REASONING (代理推理)：啟用主動分析邏輯與風險評估。
+
+2. 未來感 UI/UX
+
+黑曜石深色模式：適合長時間開發使用的視覺環境。
+
+響應式佈局 (RWD)：支援手機、平板與電腦。
 
 🚀 快速上手
 
-安裝與運行
+下載檔案：取得 gemini_prompt_optimizer.html。
 
-由於此工具為純前端應用程式，您無需安裝任何相依套件：
+輸入參數：
 
-下載 gemini_prompt_optimizer.html 檔案。
+Role：定義專業身分（如：資深軟體架構師）。
 
-使用任何現代瀏覽器（Chrome, Edge, Safari, Firefox）直接開啟。
+Context：貼入參考資料或背景資訊。
 
-使用流程
+Task：定義最終目標。
 
-Shuffle Demo：點擊右上角按鈕載入內建範例，快速了解結構。
+Shuffle Demo：點擊按鈕參考內建的結構化範例。
 
-參數輸入：填寫角色、脈絡、任務等必要欄位。
+編譯與複製：點擊「Compile Prompt」並複製到 Google AI Studio 或 Gemini Web。
 
-編譯 (Compile)：點擊底部的「Compile Prompt」。
+⚠️ 參數測試建議
 
-複製 (Copy)：點擊輸出終端機右上角的「Copy to Buffer」。
+溫度 (Temperature)：建議 Gemini 3 維持 1.0。較低值趨向確定性，較高值增加創意性。
 
-運行：將結果貼上至 Google AI Studio 或 Gemini Web。
+輸出詞元上限 (Max Tokens)：根據需求調整摘要或長文的生成長度。
 
-📦 檔案結構說明
+停止序列 (Stop Sequences)：設定特定字元讓模型停止生成（如 \n\n）。
 
-檔案名稱
-
-說明
-
-gemini_prompt_optimizer.html
-
-核心檔案，包含所有 HTML、CSS (Tailwind) 與 JS 邏輯。
-
-README.md
-
-您正在閱讀的技術說明文件。
-
-⚠️ 佈署注意事項
-
-網路依賴：本工具需要連接網路以加載 Tailwind CSS 與 Google Fonts。
-
-安全性：
-
-不收集數據：所有提示詞編譯均在使用者本地瀏覽器完成。
-
-無 API 密鑰：此版本不直接調用 Gemini API，因此無須擔心金鑰外洩。
-
-RWD 適配：在極小螢幕（如 iPhone Mini）上，側邊欄會自動收合至頂部，請垂直滑動操作。
-
-💡 開發者資訊
-
-維護者：Gemini 提示詞優化團隊
-
-更新日期：2025年12月23日
-
-協議：MIT License
-
-「好的提示詞，是成功生成內容的一半。」 —— 利用結構化思維，釋放 Gemini 的完整潛能。
+「提示工程是一個反覆進行的過程。這些指南只是起點，請根據模型回覆進行微調。」
